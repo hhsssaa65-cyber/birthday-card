@@ -693,7 +693,8 @@
 
 <script>
 // ========== CONFIG ==========
-const RECIPIENT_NAME = '亲爱的朋友'; // ← 修改这里换成收件人名字
+const urlParams = new URLSearchParams(window.location.search);
+const RECIPIENT_NAME = urlParams.get('name') || '亲爱的朋友';
 
 // Set names
 document.getElementById('recipient-name').textContent = RECIPIENT_NAME;
