@@ -1120,7 +1120,7 @@ async function fetchWeather() {
     iconEl.className = 'weather-icon weather-icon-' + info.cls;
 
     try {
-      localStorage.setItem('weather_cache', JSON.stringify({
+      localStorage.setItem('weather_cache_v2', JSON.stringify({
         data: { temp, humidity, windSpeed, windDeg, code },
         time: Date.now()
       }));
@@ -1128,7 +1128,7 @@ async function fetchWeather() {
 
   } catch (err) {
     try {
-      const cached = JSON.parse(localStorage.getItem('weather_cache'));
+      const cached = JSON.parse(localStorage.getItem('weather_cache_v2'));
       if (cached && Date.now() - cached.time < 6 * 60 * 60 * 1000) {
         const d = cached.data;
         const info = getWeatherInfo(d.code);
