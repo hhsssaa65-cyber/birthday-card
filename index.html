@@ -1040,79 +1040,54 @@ function replay() {
   document.getElementById('envelope-screen').classList.remove('hidden');
 }
 
-// ========== WEATHER WIDGET ==========
+// ========== WEATHER WIDGET (Open-Meteo) ==========
 const WEATHER_CONFIG = {
-  city: 'Nanjing',
-  updateInterval: 60 * 60 * 1000, // 1 hour
+  lat: 32.06,
+  lon: 118.78,
+  updateInterval: 60 * 60 * 1000,
   nmcUrl: 'https://www.nmc.cn/publish/forecast/AJS/nanjing.html'
 };
 
-// Weather code to Chinese description & emoji mapping
-const WEATHER_MAP = {
-  '113': { desc: '晴', icon: '☀️', cls: 'sunny' },
-  '116': { desc: '局部多云', icon: '⛅', cls: 'cloudy' },
-  '119': { desc: '多云', icon: '☁️', cls: 'cloudy' },
-  '122': { desc: '阴', icon: '☁️', cls: 'cloudy' },
-  '143': { desc: '薄雾', icon: '🌫️', cls: 'cloudy' },
-  '176': { desc: '局部小雨', icon: '🌦️', cls: 'rainy' },
-  '179': { desc: '局部小雪', icon: '🌨️', cls: 'snowy' },
-  '182': { desc: '局部雨夹雪', icon: '🌨️', cls: 'snowy' },
-  '185': { desc: '局部冻雨', icon: '🌧️', cls: 'rainy' },
-  '200': { desc: '雷阵雨', icon: '⛈️', cls: 'stormy' },
-  '227': { desc: '吹雪', icon: '🌨️', cls: 'snowy' },
-  '230': { desc: '暴风雪', icon: '❄️', cls: 'snowy' },
-  '248': { desc: '雾', icon: '🌫️', cls: 'cloudy' },
-  '260': { desc: '冻雾', icon: '🌫️', cls: 'cloudy' },
-  '263': { desc: '毛毛雨', icon: '🌦️', cls: 'rainy' },
-  '266': { desc: '小雨', icon: '🌧️', cls: 'rainy' },
-  '281': { desc: '冻毛毛雨', icon: '🌧️', cls: 'rainy' },
-  '284': { desc: '大冻雨', icon: '🌧️', cls: 'rainy' },
-  '293': { desc: '局部小雨', icon: '🌦️', cls: 'rainy' },
-  '296': { desc: '小雨', icon: '🌧️', cls: 'rainy' },
-  '299': { desc: '中雨', icon: '🌧️', cls: 'rainy' },
-  '302': { desc: '大雨', icon: '🌧️', cls: 'rainy' },
-  '305': { desc: '间歇性大雨', icon: '🌧️', cls: 'rainy' },
-  '308': { desc: '暴雨', icon: '🌧️', cls: 'stormy' },
-  '311': { desc: '冻雨', icon: '🌧️', cls: 'rainy' },
-  '314': { desc: '大冻雨', icon: '🌧️', cls: 'rainy' },
-  '317': { desc: '雨夹雪', icon: '🌨️', cls: 'snowy' },
-  '320': { desc: '中雪', icon: '🌨️', cls: 'snowy' },
-  '323': { desc: '局部小雪', icon: '🌨️', cls: 'snowy' },
-  '326': { desc: '小雪', icon: '🌨️', cls: 'snowy' },
-  '329': { desc: '局部中雪', icon: '🌨️', cls: 'snowy' },
-  '332': { desc: '中雪', icon: '🌨️', cls: 'snowy' },
-  '335': { desc: '局部大雪', icon: '❄️', cls: 'snowy' },
-  '338': { desc: '大雪', icon: '❄️', cls: 'snowy' },
-  '350': { desc: '冰粒', icon: '🧊', cls: 'snowy' },
-  '353': { desc: '小阵雨', icon: '🌦️', cls: 'rainy' },
-  '356': { desc: '中阵雨', icon: '🌧️', cls: 'rainy' },
-  '359': { desc: '大阵雨', icon: '🌧️', cls: 'rainy' },
-  '362': { desc: '小雨夹雪', icon: '🌨️', cls: 'snowy' },
-  '365': { desc: '中雨夹雪', icon: '🌨️', cls: 'snowy' },
-  '368': { desc: '小阵雪', icon: '🌨️', cls: 'snowy' },
-  '371': { desc: '中阵雪', icon: '🌨️', cls: 'snowy' },
-  '374': { desc: '小冰粒', icon: '🧊', cls: 'snowy' },
-  '377': { desc: '中冰粒', icon: '🧊', cls: 'snowy' },
-  '386': { desc: '雷阵雨', icon: '⛈️', cls: 'stormy' },
-  '389': { desc: '雷暴大雨', icon: '⛈️', cls: 'stormy' },
-  '392': { desc: '雷阵雪', icon: '⛈️', cls: 'stormy' },
-  '395': { desc: '雷暴大雪', icon: '⛈️', cls: 'stormy' }
-};
-
-// Wind direction mapping
-const WIND_DIR_MAP = {
-  'N': '北风', 'NNE': '北东北', 'NE': '东北风', 'ENE': '东东北',
-  'E': '东风', 'ESE': '东东南', 'SE': '东南风', 'SSE': '南东南',
-  'S': '南风', 'SSW': '南西南', 'SW': '西南风', 'WSW': '西西南',
-  'W': '西风', 'WNW': '西西北', 'NW': '西北风', 'NNW': '北西北'
+// WMO weather code → Chinese
+const WMO_MAP = {
+  0:  { desc: '晴', icon: '☀️', cls: 'sunny' },
+  1:  { desc: '晴间多云', icon: '🌤️', cls: 'sunny' },
+  2:  { desc: '多云', icon: '⛅', cls: 'cloudy' },
+  3:  { desc: '阴', icon: '☁️', cls: 'cloudy' },
+  45: { desc: '雾', icon: '🌫️', cls: 'cloudy' },
+  48: { desc: '雾凇', icon: '🌫️', cls: 'cloudy' },
+  51: { desc: '小毛毛雨', icon: '🌦️', cls: 'rainy' },
+  53: { desc: '毛毛雨', icon: '🌦️', cls: 'rainy' },
+  55: { desc: '大毛毛雨', icon: '🌧️', cls: 'rainy' },
+  56: { desc: '冻毛毛雨', icon: '🌧️', cls: 'rainy' },
+  57: { desc: '冻雨', icon: '🌧️', cls: 'rainy' },
+  61: { desc: '小雨', icon: '🌧️', cls: 'rainy' },
+  63: { desc: '中雨', icon: '🌧️', cls: 'rainy' },
+  65: { desc: '大雨', icon: '🌧️', cls: 'stormy' },
+  66: { desc: '冻雨', icon: '🌧️', cls: 'rainy' },
+  67: { desc: '大冻雨', icon: '🌧️', cls: 'stormy' },
+  71: { desc: '小雪', icon: '🌨️', cls: 'snowy' },
+  73: { desc: '中雪', icon: '🌨️', cls: 'snowy' },
+  75: { desc: '大雪', icon: '❄️', cls: 'snowy' },
+  77: { desc: '雪粒', icon: '🌨️', cls: 'snowy' },
+  80: { desc: '小阵雨', icon: '🌦️', cls: 'rainy' },
+  81: { desc: '阵雨', icon: '🌧️', cls: 'rainy' },
+  82: { desc: '大阵雨', icon: '🌧️', cls: 'stormy' },
+  85: { desc: '小阵雪', icon: '🌨️', cls: 'snowy' },
+  86: { desc: '大阵雪', icon: '❄️', cls: 'snowy' },
+  95: { desc: '雷阵雨', icon: '⛈️', cls: 'stormy' },
+  96: { desc: '雷阵雨伴冰雹', icon: '⛈️', cls: 'stormy' },
+  99: { desc: '雷暴冰雹', icon: '⛈️', cls: 'stormy' }
 };
 
 function getWeatherInfo(code) {
-  return WEATHER_MAP[code] || { desc: '未知', icon: '🌡️', cls: 'cloudy' };
+  return WMO_MAP[code] || { desc: '未知', icon: '🌡️', cls: 'cloudy' };
 }
 
-function getWindDir(dir16) {
-  return WIND_DIR_MAP[dir16] || dir16;
+function degToWindDir(deg) {
+  const dirs = ['北风','东北风','东北风','东北风','东风','东南风','东南风','东南风',
+                '南风','西南风','西南风','西南风','西风','西北风','西北风','西北风'];
+  return dirs[Math.round(deg / 22.5) % 16];
 }
 
 async function fetchWeather() {
@@ -1123,39 +1098,35 @@ async function fetchWeather() {
   const humidityEl = document.getElementById('weather-humidity');
 
   try {
-    const resp = await fetch(`https://wttr.in/${WEATHER_CONFIG.city}?format=j1`);
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_CONFIG.lat}&longitude=${WEATHER_CONFIG.lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m&timezone=Asia/Shanghai`;
+    const resp = await fetch(url);
     if (!resp.ok) throw new Error('Weather fetch failed');
 
     const data = await resp.json();
-    const current = data.current_condition[0];
+    const c = data.current;
 
-    const temp = current.temp_C;
-    const feelsLike = current.FeelsLikeC;
-    const humidity = current.humidity;
-    const windDir = current.winddir16Point;
-    const windSpeed = current.windspeedKmph;
-    const code = current.weatherCode;
-    const weatherInfo = getWeatherInfo(code);
+    const temp = Math.round(c.temperature_2m);
+    const humidity = c.relative_humidity_2m;
+    const windSpeed = Math.round(c.wind_speed_10m);
+    const windDeg = c.wind_direction_10m;
+    const code = c.weather_code;
+    const info = getWeatherInfo(code);
 
-    iconEl.textContent = weatherInfo.icon;
+    iconEl.textContent = info.icon;
     tempEl.textContent = `${temp}°`;
-    descEl.textContent = weatherInfo.desc;
-    windEl.innerHTML = `💨 ${getWindDir(windDir)} ${windSpeed}km/h`;
+    descEl.textContent = info.desc;
+    windEl.innerHTML = `💨 ${degToWindDir(windDeg)} ${windSpeed}km/h`;
     humidityEl.innerHTML = `💧 ${humidity}%`;
+    iconEl.className = 'weather-icon weather-icon-' + info.cls;
 
-    // Update icon color class
-    iconEl.className = 'weather-icon weather-icon-' + weatherInfo.cls;
-
-    // Store for cache
     try {
       localStorage.setItem('weather_cache', JSON.stringify({
-        data: { temp, feelsLike, humidity, windDir, windSpeed, code },
+        data: { temp, humidity, windSpeed, windDeg, code },
         time: Date.now()
       }));
     } catch(e) {}
 
   } catch (err) {
-    // Try cache first
     try {
       const cached = JSON.parse(localStorage.getItem('weather_cache'));
       if (cached && Date.now() - cached.time < 6 * 60 * 60 * 1000) {
@@ -1164,14 +1135,13 @@ async function fetchWeather() {
         iconEl.textContent = info.icon;
         tempEl.textContent = `${d.temp}°`;
         descEl.textContent = info.desc;
-        windEl.innerHTML = `💨 ${getWindDir(d.windDir)} ${d.windSpeed}km/h`;
+        windEl.innerHTML = `💨 ${degToWindDir(d.windDeg)} ${d.windSpeed}km/h`;
         humidityEl.innerHTML = `💧 ${d.humidity}%`;
         iconEl.className = 'weather-icon weather-icon-' + info.cls;
         return;
       }
     } catch(e) {}
 
-    // Fallback: show NMC link hint
     iconEl.textContent = '🌡️';
     tempEl.textContent = '--°';
     descEl.textContent = '点击查看详情';
@@ -1183,7 +1153,6 @@ async function fetchWeather() {
 
 function initWeather() {
   fetchWeather();
-  // Update every hour
   setInterval(fetchWeather, WEATHER_CONFIG.updateInterval);
 }
 
