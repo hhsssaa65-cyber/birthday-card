@@ -694,7 +694,8 @@
 <script>
 // ========== CONFIG ==========
 const urlParams = new URLSearchParams(window.location.search);
-const RECIPIENT_NAME = urlParams.get('name') || '亲爱的朋友';
+const nameFromUrl = urlParams.get('name');
+const RECIPIENT_NAME = nameFromUrl ? `亲爱的${nameFromUrl}` : '亲爱的朋友';
 
 // Set names
 document.getElementById('recipient-name').textContent = RECIPIENT_NAME;
