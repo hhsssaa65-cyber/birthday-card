@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Noto+Serif+SC:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --warm-pink: #ff6b9d;
+    --warm-gold: #ffd93d;
+    --warm-orange: #ff8c42;
+    --soft-cream: #fff8f0;
+    --deep-rose: #c44569;
+    --light-lavender: #e8d5f5;
+  }
+
+  body {
+    overflow: hidden;
+    height: 100vh;
+    font-family: 'Noto Serif SC', serif;
+    background: var(--soft-cream);
+  }
+
+  /* ========== ENVELOPE SCREEN ========== */
+  #envelope-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 30%, #f48fb1 60%, #fff9c4 100%);
+    transition: opacity 0.6s ease;
+  }
+
+  #envelope-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .envelope-wrapper {
+    position: relative;
+    width: 420px;
+    max-width: 90vw;
+    cursor: pointer;
+    perspective: 1200px;
+  }
+
+  .envelope-body {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    background: linear-gradient(145deg, #fff5ee, #ffe4d6);
+    border-radius: 12px;
+    box-shadow: 0 15px 50px rgba(196, 69, 105, 0.2), 0 5px 20px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .envelope-body::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 2px dashed rgba(196, 69, 105, 0.2);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  .envelope-stamp {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 56px;
+    height: 68px;
+    background: linear-gradient(135deg, var(--warm-pink), var(--deep-rose));
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .envelope-stamp::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 3px dotted rgba(255,255,255,0.5);
+    border-radius: 6px;
+  }
+
+  .recipient-label {
+    font-size: 14px;
+    color: var(--deep-rose);
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    opacity: 0.7;
+  }
+
+  .recipient-name {
+    font-family: 'Dancing Script', cursive;
+    font-size: 42px;
+    color: var(--deep-rose);
+    text-shadow: 0 2px 4px rgba(196, 69, 105, 0.15);
+    margin-bottom: 20px;
+  }
+
+  .tap-hint {
+    font-size: 13px;
+    color: rgba(196, 69, 105, 0.5);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .from-hint {
+    font-size: 11px;
+    color: rgba(196, 69, 105, 0.35);
+    margin-top: 8px;
+    letter-spacing: 2px;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.03); }
+  }
+
+  /* Poke hint inside envelope */
+  .poke-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 20;
+    pointer-events: none;
+    animation: pokeAppear 1s ease-out 0.5s both;
+  }
+
+  @keyframes pokeAppear {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  .poke-finger {
+    font-size: 52px;
+    animation: pokeShake 1.8s ease-in-out infinite;
+    transform-origin: bottom center;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+  }
+
+  @keyframes pokeShake {
+    0%   { transform: rotate(0deg) translateY(0); }
+    10%  { transform: rotate(-15deg) translateY(3px); }
+    20%  { transform: rotate(12deg) translateY(-6px); }
+    30%  { transform: rotate(-10deg) translateY(3px); }
+    40%  { transform: rotate(8deg) translateY(-3px); }
+    50%  { transform: rotate(0deg) translateY(0); }
+    100% { transform: rotate(0deg) translateY(0); }
+  }
+
+  .poke-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--deep-rose);
+    letter-spacing: 6px;
+    opacity: 0.7;
+    animation: pokeTextPulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pokeTextPulse {
+    0%, 100% { opacity: 0.45; letter-spacing: 6px; }
+    50% { opacity: 0.9; letter-spacing: 10px; }
+  }
+
+  /* Ripple effect on envelope hover */
+  .envelope-wrapper:hover .envelope-body {
+    box-shadow: 0 15px 50px rgba(196, 69, 105, 0.3), 0 5px 20px rgba(0,0,0,0.1), 0 0 40px rgba(255, 107, 157, 0.15);
+  }
+
+  .envelope-wrapper:active .envelope-body {
+    transform: scale(0.97);
+    transition: transform 0.1s;
+  }
+
+  /* Tear lines */
+  .tear-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 10;
+    overflow: visible;
+  }
+
+  .tear-line-top { top: -1px; }
+  .tear-line-bottom { bottom: -1px; }
+
+  .tear-line svg {
+    width: 100%;
+    height: 20px;
+    position: absolute;
+  }
+
+  .tear-line-top svg { top: 0; }
+  .tear-line-bottom svg { bottom: -17px; }
+
+  /* Top and bottom halves for tear animation */
+  .envelope-top, .envelope-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(145deg, #fff5ee, #ffe4d6);
+    z-index: 5;
+    transition: transform 1.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    backface-visibility: hidden;
+  }
+
+  .envelope-top {
+    top: 0;
+    border-radius: 12px 12px 0 0;
+    transform-origin: top center;
+  }
+
+  .envelope-bottom {
+    bottom: 0;
+    border-radius: 0 0 12px 12px;
+    transform-origin: bottom center;
+  }
+
+  .envelope-wrapper.tearing .envelope-top {
+    transform: translateY(-120%) rotate(-2deg);
+  }
+
+  .envelope-wrapper.tearing .envelope-bottom {
+    transform: translateY(120%) rotate(2deg);
+  }
+
+  /* Confetti burst on tear */
+  .confetti-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 200;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+  }
+
+  /* ========== MAIN CELEBRATION ========== */
+  #celebration {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 30%, #1a0a2e 60%, #0d0221 100%);
+    overflow: hidden;
+  }
+
+  /* Stars background */
+  .stars {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* Fireworks canvas */
+  #fireworks-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* Main content */
+  .celebration-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    animation: fadeInUp 1.2s ease-out 0.3s both;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .happy-text {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(48px, 10vw, 100px);
+    background: linear-gradient(135deg, var(--warm-gold), var(--warm-orange), var(--warm-pink), var(--warm-gold));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.4));
+    line-height: 1.2;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .birthday-text {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(52px, 11vw, 110px);
+    background: linear-gradient(135deg, var(--warm-pink), #ff9a9e, var(--warm-gold), var(--warm-orange));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite reverse;
+    filter: drop-shadow(0 0 30px rgba(255, 217, 61, 0.4));
+    line-height: 1.1;
+    margin-top: -10px;
+  }
+
+  .name-display {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(20px, 4vw, 36px);
+    color: var(--warm-gold);
+    margin-top: 24px;
+    letter-spacing: 6px;
+    text-shadow: 0 0 20px rgba(255, 217, 61, 0.3);
+    animation: fadeInUp 1.2s ease-out 0.8s both;
+  }
+
+  .wish-text {
+    font-size: clamp(14px, 2.5vw, 20px);
+    color: rgba(255, 248, 240, 0.7);
+    margin-top: 20px;
+    letter-spacing: 3px;
+    line-height: 1.8;
+    animation: fadeInUp 1.2s ease-out 1.2s both;
+  }
+
+  /* Floating decorations */
+  .floating-item {
+    position: absolute;
+    z-index: 5;
+    animation: floatUp var(--dur) ease-in-out infinite;
+    opacity: 0.6;
+    font-size: var(--size, 24px);
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* Cake icon */
+  .cake-decoration {
+    font-size: clamp(40px, 8vw, 70px);
+    margin-top: 30px;
+    animation: fadeInUp 1.2s ease-out 1.5s both, gentleBounce 3s ease-in-out infinite 2.5s;
+    filter: drop-shadow(0 0 15px rgba(255, 217, 61, 0.3));
+  }
+
+  @keyframes gentleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Replay button */
+  .replay-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+    animation: fadeInUp 1s ease-out 2s both;
+  }
+
+  .replay-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Music note floating */
+  .music-notes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .music-note {
+    position: absolute;
+    font-size: 20px;
+    opacity: 0;
+    color: rgba(255, 217, 61, 0.4);
+    animation: noteFloat 6s ease-in-out infinite;
+  }
+
+  @keyframes noteFloat {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.4; }
+    80% { opacity: 0.4; }
+    100% { transform: translateY(-200px) rotate(20deg); opacity: 0; }
+  }
+
+  /* ========== WEATHER WIDGET ========== */
+  .weather-widget {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg,
+      rgba(45, 27, 78, 0.65),
+      rgba(26, 10, 46, 0.55));
+    border: 1px solid rgba(255, 217, 61, 0.12);
+    border-radius: 16px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.4s ease;
+    animation: weatherFadeIn 1s ease-out 2.2s both;
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .weather-widget:hover {
+    background: linear-gradient(135deg,
+      rgba(45, 27, 78, 0.8),
+      rgba(26, 10, 46, 0.7));
+    border-color: rgba(255, 217, 61, 0.25);
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      0 0 20px rgba(255, 217, 61, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  @keyframes weatherFadeIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .weather-icon {
+    font-size: 36px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+    animation: weatherIconPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes weatherIconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  .weather-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .weather-temp-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .weather-temp {
+    font-family: 'Dancing Script', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--warm-gold);
+    line-height: 1;
+    text-shadow: 0 0 12px rgba(255, 217, 61, 0.25);
+  }
+
+  .weather-desc {
+    font-size: 13px;
+    color: rgba(255, 248, 240, 0.75);
+    letter-spacing: 1px;
+  }
+
+  .weather-detail {
+    font-size: 11px;
+    color: rgba(255, 248, 240, 0.4);
+    letter-spacing: 0.5px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .weather-detail span {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .weather-city {
+    font-size: 10px;
+    color: rgba(255, 217, 61, 0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .weather-loading {
+    font-size: 12px;
+    color: rgba(255, 248, 240, 0.4);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .weather-error {
+    font-size: 11px;
+    color: rgba(255, 150, 150, 0.6);
+  }
+
+  /* Weather icon mapping classes */
+  .weather-icon-sunny { color: #ffd93d; }
+  .weather-icon-cloudy { color: #b8c5d6; }
+  .weather-icon-rainy { color: #7eb8da; }
+  .weather-icon-snowy { color: #e8f0ff; }
+  .weather-icon-stormy { color: #a78bfa; }
+, 2200);
+}
+
+// ========== CONFETTI ==========
+function burstConfetti() {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#ff6b9d', '#ffd93d', '#ff8c42', '#c44569', '#a29bfe', '#fd79a8', '#00cec9', '#ffeaa7'];
+  const shapes = ['circle', 'square', 'triangle'];
+
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+    const size = 6 + Math.random() * 10;
+
+    piece.style.width = size + 'px';
+    piece.style.height = size + 'px';
+    piece.style.left = (30 + Math.random() * 40) + 'vw';
+    piece.style.top = '50vh';
+    piece.style.background = color;
+
+    if (shape === 'circle') piece.style.borderRadius = '50%';
+    else if (shape === 'triangle') {
+      piece.style.background = 'transparent';
+      piece.style.borderLeft = size/2 + 'px solid transparent';
+      piece.style.borderRight = size/2 + 'px solid transparent';
+      piece.style.borderBottom = size + 'px solid ' + color;
+    }
+
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = 200 + Math.random() * 400;
+    const tx = Math.cos(angle) * velocity;
+    const ty = Math.sin(angle) * velocity - 200;
+    const rot = Math.random() * 720 - 360;
+
+    piece.style.transition = 'none';
+    piece.style.opacity = '1';
+
+    container.appendChild(piece);
+
+    requestAnimationFrame(() => {
+      piece.style.transition = 'all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      piece.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}deg)`;
+      piece.style.opacity = '0';
+    });
+
+    setTimeout(() => piece.remove(), 1500);
+  }
+}
+
+// ========== STARS ==========
+function createStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 100; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.setProperty('--dur', (2 + Math.random() * 3) + 's');
+    star.style.animationDelay = Math.random() * 3 + 's';
+    star.style.width = (1 + Math.random() * 3) + 'px';
+    star.style.height = star.style.width;
+    container.appendChild(star);
+  }
+}
+
+// ========== FIREWORKS (Canvas) ==========
+class Firework {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.reset();
+  }
+
+  reset() {
+    this.x = Math.random() * this.canvas.width;
+    this.y = this.canvas.height;
+    this.targetY = 80 + Math.random() * (this.canvas.height * 0.4);
+    this.speed = 3 + Math.random() * 3;
+    this.exploded = false;
+    this.particles = [];
+    this.trail = [];
+    this.hue = Math.random() * 360;
+    this.brightness = 50 + Math.random() * 30;
+  }
+
+  update() {
+    if (!this.exploded) {
+      this.trail.push({ x: this.x, y: this.y, alpha: 1 });
+      if (this.trail.length > 8) this.trail.shift();
+
+      this.y -= this.speed;
+      this.x += (Math.random() - 0.5) * 0.5;
+
+      if (this.y <= this.targetY) {
+        this.explode();
+      }
+    } else {
+      this.particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.04;
+        p.alpha -= 0.012;
+        p.size *= 0.98;
+      });
+      this.particles = this.particles.filter(p => p.alpha > 0);
+    }
+
+    this.trail.forEach(t => t.alpha -= 0.08);
+    this.trail = this.trail.filter(t => t.alpha > 0);
+  }
+
+  explode() {
+    this.exploded = true;
+    const count = 60 + Math.floor(Math.random() * 40);
+    const type = Math.random();
+
+    for (let i = 0; i < count; i++) {
+      let angle, speed;
+      if (type < 0.3) {
+        // Ring
+        angle = (i / count) * Math.PI * 2;
+        speed = 2 + Math.random() * 2;
+      } else if (type < 0.6) {
+        // Double burst
+        angle = Math.random() * Math.PI * 2;
+        speed = 1 + Math.random() * 4;
+      } else {
+        // Standard
+        angle = Math.random() * Math.PI * 2;
+        speed = Math.random() * 4;
+      }
+
+      this.particles.push({
+        x: this.x,
+        y: this.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        alpha: 1,
+        size: 2 + Math.random() * 2,
+        hue: this.hue + Math.random() * 30 - 15,
+        brightness: this.brightness + Math.random() * 20
+      });
+    }
+  }
+
+  draw(ctx) {
+    // Trail
+    this.trail.forEach(t => {
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${this.hue}, 80%, 70%, ${t.alpha * 0.5})`;
+      ctx.fill();
+    });
+
+    // Rocket
+    if (!this.exploded) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = `hsl(${this.hue}, 80%, 80%)`;
+      ctx.fill();
+
+      // Glow
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${this.hue}, 80%, 80%, 0.2)`;
+      ctx.fill();
+    }
+
+    // Particles
+    this.particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 80%, ${p.brightness}%, ${p.alpha})`;
+      ctx.fill();
+
+      // Glow
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 80%, ${p.brightness}%, ${p.alpha * 0.15})`;
+      ctx.fill();
+    });
+  }
+
+  isDead() {
+    return this.exploded && this.particles.length === 0;
+  }
+}
+
+let fireworks = [];
+let animFrameId = null;
+
+function initFireworks() {
+  const canvas = document.getElementById('fireworks-canvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let lastLaunch = 0;
+
+  function animate(time) {
+    animFrameId = requestAnimationFrame(animate);
+
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Launch new fireworks
+    if (time - lastLaunch > 600 + Math.random() * 800) {
+      fireworks.push(new Firework(canvas));
+      if (Math.random() < 0.3) fireworks.push(new Firework(canvas));
+      lastLaunch = time;
+    }
+
+    fireworks.forEach(fw => {
+      fw.update();
+      fw.draw(ctx);
+    });
+
+    fireworks = fireworks.filter(fw => !fw.isDead());
+  }
+
+  animate(0);
+}
+
+// ========== FLOATING DECORATIONS ==========
+function createFloatingDecorations() {
+  const emojis = ['🎈', '🎉', '🎊', '✨', '💫', '🌟', '🎀', '💝', '🦋', '🌸'];
+  const container = document.getElementById('celebration');
+
+  for (let i = 0; i < 15; i++) {
+    const item = document.createElement('div');
+    item.className = 'floating-item';
+    item.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    item.style.left = Math.random() * 100 + '%';
+    item.style.bottom = '-50px';
+    item.style.setProperty('--dur', (8 + Math.random() * 12) + 's');
+    item.style.setProperty('--size', (16 + Math.random() * 20) + 'px');
+    item.style.animationDelay = Math.random() * 10 + 's';
+    container.appendChild(item);
+  }
+}
+
+// ========== MUSIC NOTES ==========
+function createMusicNotes() {
+  const notes = ['♪', '♫', '♬', '♩'];
+  const container = document.getElementById('music-notes');
+
+  for (let i = 0; i < 8; i++) {
+    const note = document.createElement('div');
+    note.className = 'music-note';
+    note.textContent = notes[Math.floor(Math.random() * notes.length)];
+    note.style.left = (10 + Math.random() * 80) + '%';
+    note.style.bottom = (5 + Math.random() * 20) + '%';
+    note.style.animationDelay = Math.random() * 6 + 's';
+    note.style.animationDuration = (5 + Math.random() * 4) + 's';
+    note.style.fontSize = (16 + Math.random() * 16) + 'px';
+    container.appendChild(note);
+  }
+}
+
+function startCelebration() {
+  createStars();
+  initFireworks();
+  createFloatingDecorations();
+  createMusicNotes();
+  initWeather();
+}
+
+// ========== REPLAY ==========
+function replay() {
+  // Stop fireworks
+  if (animFrameId) cancelAnimationFrame(animFrameId);
+  fireworks = [];
+
+  // Clear dynamic elements
+  document.getElementById('stars').innerHTML = '';
+  document.getElementById('music-notes').innerHTML = '';
+
+  // Remove floating items
+  document.querySelectorAll('.floating-item').forEach(el => el.remove());
+
+  // Reset canvas
+  const canvas = document.getElementById('fireworks-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Show envelope
+  isOpened = false;
+  const envelope = document.getElementById('envelope');
+  envelope.classList.remove('tearing');
+  document.getElementById('envelope-screen').classList.remove('hidden');
+}
+
+// ========== WEATHER WIDGET ==========
+const WEATHER_CONFIG = {
+  city: 'Nanjing',
+  updateInterval: 60 * 60 * 1000, // 1 hour
+  nmcUrl: 'https://www.nmc.cn/publish/forecast/AJS/nanjing.html'
+};
+
+// Weather code to Chinese description & emoji mapping
+const WEATHER_MAP = {
+  '113': { desc: '晴', icon: '☀️', cls: 'sunny' },
+  '116': { desc: '局部多云', icon: '⛅', cls: 'cloudy' },
+  '119': { desc: '多云', icon: '☁️', cls: 'cloudy' },
+  '122': { desc: '阴', icon: '☁️', cls: 'cloudy' },
+  '143': { desc: '薄雾', icon: '🌫️', cls: 'cloudy' },
+  '176': { desc: '局部小雨', icon: '🌦️', cls: 'rainy' },
+  '179': { desc: '局部小雪', icon: '🌨️', cls: 'snowy' },
+  '182': { desc: '局部雨夹雪', icon: '🌨️', cls: 'snowy' },
+  '185': { desc: '局部冻雨', icon: '🌧️', cls: 'rainy' },
+  '200': { desc: '雷阵雨', icon: '⛈️', cls: 'stormy' },
+  '227': { desc: '吹雪', icon: '🌨️', cls: 'snowy' },
+  '230': { desc: '暴风雪', icon: '❄️', cls: 'snowy' },
+  '248': { desc: '雾', icon: '🌫️', cls: 'cloudy' },
+  '260': { desc: '冻雾', icon: '🌫️', cls: 'cloudy' },
+  '263': { desc: '毛毛雨', icon: '🌦️', cls: 'rainy' },
+  '266': { desc: '小雨', icon: '🌧️', cls: 'rainy' },
+  '281': { desc: '冻毛毛雨', icon: '🌧️', cls: 'rainy' },
+  '284': { desc: '大冻雨', icon: '🌧️', cls: 'rainy' },
+  '293': { desc: '局部小雨', icon: '🌦️', cls: 'rainy' },
+  '296': { desc: '小雨', icon: '🌧️', cls: 'rainy' },
+  '299': { desc: '中雨', icon: '🌧️', cls: 'rainy' },
+  '302': { desc: '大雨', icon: '🌧️', cls: 'rainy' },
+  '305': { desc: '间歇性大雨', icon: '🌧️', cls: 'rainy' },
+  '308': { desc: '暴雨', icon: '🌧️', cls: 'stormy' },
+  '311': { desc: '冻雨', icon: '🌧️', cls: 'rainy' },
+  '314': { desc: '大冻雨', icon: '🌧️', cls: 'rainy' },
+  '317': { desc: '雨夹雪', icon: '🌨️', cls: 'snowy' },
+  '320': { desc: '中雪', icon: '🌨️', cls: 'snowy' },
+  '323': { desc: '局部小雪', icon: '🌨️', cls: 'snowy' },
+  '326': { desc: '小雪', icon: '🌨️', cls: 'snowy' },
+  '329': { desc: '局部中雪', icon: '🌨️', cls: 'snowy' },
+  '332': { desc: '中雪', icon: '🌨️', cls: 'snowy' },
+  '335': { desc: '局部大雪', icon: '❄️', cls: 'snowy' },
+  '338': { desc: '大雪', icon: '❄️', cls: 'snowy' },
+  '350': { desc: '冰粒', icon: '🧊', cls: 'snowy' },
+  '353': { desc: '小阵雨', icon: '🌦️', cls: 'rainy' },
+  '356': { desc: '中阵雨', icon: '🌧️', cls: 'rainy' },
+  '359': { desc: '大阵雨', icon: '🌧️', cls: 'rainy' },
+  '362': { desc: '小雨夹雪', icon: '🌨️', cls: 'snowy' },
+  '365': { desc: '中雨夹雪', icon: '🌨️', cls: 'snowy' },
+  '368': { desc: '小阵雪', icon: '🌨️', cls: 'snowy' },
+  '371': { desc: '中阵雪', icon: '🌨️', cls: 'snowy' },
+  '374': { desc: '小冰粒', icon: '🧊', cls: 'snowy' },
+  '377': { desc: '中冰粒', icon: '🧊', cls: 'snowy' },
+  '386': { desc: '雷阵雨', icon: '⛈️', cls: 'stormy' },
+  '389': { desc: '雷暴大雨', icon: '⛈️', cls: 'stormy' },
+  '392': { desc: '雷阵雪', icon: '⛈️', cls: 'stormy' },
+  '395': { desc: '雷暴大雪', icon: '⛈️', cls: 'stormy' }
+};
+
+// Wind direction mapping
+const WIND_DIR_MAP = {
+  'N': '北风', 'NNE': '北东北', 'NE': '东北风', 'ENE': '东东北',
+  'E': '东风', 'ESE': '东东南', 'SE': '东南风', 'SSE': '南东南',
+  'S': '南风', 'SSW': '南西南', 'SW': '西南风', 'WSW': '西西南',
+  'W': '西风', 'WNW': '西西北', 'NW': '西北风', 'NNW': '北西北'
+};
+
+function getWeatherInfo(code) {
+  return WEATHER_MAP[code] || { desc: '未知', icon: '🌡️', cls: 'cloudy' };
+}
+
+function getWindDir(dir16) {
+  return WIND_DIR_MAP[dir16] || dir16;
+}
+
+async function fetchWeather() {
+  const iconEl = document.getElementById('weather-icon');
+  const tempEl = document.getElementById('weather-temp');
+  const descEl = document.getElementById('weather-desc');
+  const windEl = document.getElementById('weather-wind');
+  const humidityEl = document.getElementById('weather-humidity');
+
+  try {
+    const resp = await fetch(`https://wttr.in/${WEATHER_CONFIG.city}?format=j1`);
+    if (!resp.ok) throw new Error('Weather fetch failed');
+
+    const data = await resp.json();
+    const current = data.current_condition[0];
+
+    const temp = current.temp_C;
+    const feelsLike = current.FeelsLikeC;
+    const humidity = current.humidity;
+    const windDir = current.winddir16Point;
+    const windSpeed = current.windspeedKmph;
+    const code = current.weatherCode;
+    const weatherInfo = getWeatherInfo(code);
+
+    iconEl.textContent = weatherInfo.icon;
+    tempEl.textContent = `${temp}°`;
+    descEl.textContent = weatherInfo.desc;
+    windEl.innerHTML = `💨 ${getWindDir(windDir)} ${windSpeed}km/h`;
+    humidityEl.innerHTML = `💧 ${humidity}%`;
+
+    // Update icon color class
+    iconEl.className = 'weather-icon weather-icon-' + weatherInfo.cls;
+
+    // Store for cache
+    try {
+      localStorage.setItem('weather_cache', JSON.stringify({
+        data: { temp, feelsLike, humidity, windDir, windSpeed, code },
+        time: Date.now()
+      }));
+    } catch(e) {}
+
+  } catch (err) {
+    // Try cache first
+    try {
+      const cached = JSON.parse(localStorage.getItem('weather_cache'));
+      if (cached && Date.now() - cached.time < 6 * 60 * 60 * 1000) {
+        const d = cached.data;
+        const info = getWeatherInfo(d.code);
+        iconEl.textContent = info.icon;
+        tempEl.textContent = `${d.temp}°`;
+        descEl.textContent = info.desc;
+        windEl.innerHTML = `💨 ${getWindDir(d.windDir)} ${d.windSpeed}km/h`;
+        humidityEl.innerHTML = `💧 ${d.humidity}%`;
+        iconEl.className = 'weather-icon weather-icon-' + info.cls;
+        return;
+      }
+    } catch(e) {}
+
+    // Fallback: show NMC link hint
+    iconEl.textContent = '🌡️';
+    tempEl.textContent = '--°';
+    descEl.textContent = '点击查看详情';
+    descEl.style.color = 'rgba(255, 217, 61, 0.5)';
+    windEl.innerHTML = '💨 --';
+    humidityEl.innerHTML = '💧 --';
+  }
+}
+
+function initWeather() {
+  fetchWeather();
+  // Update every hour
+  setInterval(fetchWeather, WEATHER_CONFIG.updateInterval);
+}
+
+// ========== INIT ==========
+createStars();
+</script>
+</body>
+</html>
